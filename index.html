@@ -621,11 +621,11 @@
     <div class="row2">
       <div class="field">
         <label>ทะเบียนหัว</label>
-        <input type="text" id="plateHead" placeholder="เช่น 70-1234">
+        <input type="text" id="plateHead" placeholder="เช่น 82-1234">
       </div>
       <div class="field">
         <label>ทะเบียนหาง</label>
-        <input type="text" id="plateTail" placeholder="เช่น 70-5678">
+        <input type="text" id="plateTail" placeholder="เช่น 82-5678">
       </div>
     </div>
     <div class="field">
@@ -966,8 +966,8 @@ let refuelCounters = { depart:0, warehouse:0, destination:0, parking:0 };
 
 function loadHistory(){ return JSON.parse(localStorage.getItem('checkins')||'[]'); }
 function saveHistory(list){ localStorage.setItem('checkins', JSON.stringify(list)); }
-function loadLast(){ return JSON.parse(localStorage.getItem('lastCheckin')||'null'); }
-function saveLast(obj){ localStorage.setItem('lastCheckin', JSON.stringify(obj)); }
+function loadLast(){ return JSON.parse(localStorage.getItem('lastCheckin_'+currentDriverId)||'null'); }
+function saveLast(obj){ localStorage.setItem('lastCheckin_'+currentDriverId, JSON.stringify(obj)); }
 
 function haversineKm(lat1,lon1,lat2,lon2){
   const R=6371, toRad=d=>d*Math.PI/180;
@@ -1121,7 +1121,7 @@ function sendToSheet(entry){
 }
 
 function renderHistory(){
-  const list = loadHistory();
+  const list = loadHistory().filter(item => item.driverId === currentDriverId);
   const el = document.getElementById('historyList');
   if(list.length===0){ el.innerHTML='<div class="empty">ยังไม่มีการเช็คอิน</div>'; return; }
   el.innerHTML = list.map(item=>{
@@ -1156,10 +1156,10 @@ function renderHistory(){
 }
 
 async function clearHistory(){
-  const ok = await showConfirm('ต้องการล้างประวัติการเช็คอินทั้งหมดหรือไม่?');
+  const ok = await showConfirm('ต้องการล้างประวัติการเช็คอินของตัวเองทั้งหมดหรือไม่?');
   if(ok){
-    localStorage.removeItem('checkins');
-    localStorage.removeItem('lastCheckin');
+    const remaining = loadHistory().filter(item => item.driverId !== currentDriverId);
+    saveHistory(remaining);
     renderHistory();
   }
 }
