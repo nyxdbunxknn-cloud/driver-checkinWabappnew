@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>เช็คอินรถขนส่ง</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#12233c;
+    --navy-dark:#0a1626;
+    --orange:#ff7a1a;
+    --orange-dark:#e2650a;
+    --bg:#f2f3ef;
+    --card:#ffffff;
+    --line:#e3e5e0;
+    --text:#1a2230;
+    --muted:#6b7280;
+    --green:#1f9d55;
+    --green-bg:#eaf7ef;
+    --amber-bg:#fff4e8;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-tap-highlight-color:transparent;
+    padding-bottom:40px;
+  }
+  h1,h2,h3,.display{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;
+    letter-spacing:0.2px;
+  }
+  header{
+    background:linear-gradient(135deg,var(--navy) 0%,var(--navy-dark) 100%);
+    color:#fff;
+    padding:22px 18px 26px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::after{
+    content:"";
+    position:absolute;
+    right:-30px; top:-30px;
+    width:140px; height:140px;
+    background:var(--orange);
+    opacity:0.15;
+    border-radius:50%;
+  }
+  header .eyebrow{
+    font-size:13px;
+    color:#9fb0c9;
+    margin:0 0 2px;
+  }
+  header h1{
+    font-size:30px;
+    margin:0;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .wrap{
+    max-width:520px;
+    margin:0 auto;
+    padding:0 14px;
+  }
+  .card{
+    background:var(--card);
+    border-radius:var(--radius);
+    border:1px solid var(--line);
+    padding:16px;
+    margin-top:14px;
+  }
+  .card h2{
+    font-size:20px;
+    margin:0 0 12px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .field{
+    margin-bottom:12px;
+  }
+  .field label{
+    display:block;
+    font-size:13px;
+    color:var(--muted);
+    margin-bottom:5px;
+    font-weight:500;
+  }
+  .field input[type=text],
+  .field input[type=number],
+  .field select{
+    width:100%;
+    padding:11px 12px;
+    border-radius:10px;
+    border:1.5px solid var(--line);
+    font-size:15px;
+    font-family:inherit;
+    background:#fbfbfa;
+    color:var(--text);
+  }
+  .field input:focus,.field select:focus{
+    outline:2px solid var(--orange);
+    outline-offset:1px;
+    background:#fff;
+  }
+  .field .hint{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:4px;
+  }
+  .row2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .status-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:14px;
+  }
+  .status-btn{
+    background:#fff;
+    border:1.5px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px 10px;
+    text-align:center;
+    cursor:pointer;
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:600;
+    font-size:17px;
+    color:var(--navy);
+    transition:transform .12s ease, border-color .12s ease, background .12s ease;
+  }
+  .status-btn .ic{
+    display:block;
+    font-size:28px;
+    margin-bottom:6px;
+  }
+  .status-btn:active{ transform:scale(0.96); }
+  .status-btn.active{
+    background:var(--navy);
+    color:#fff;
+    border-color:var(--navy);
+  }
+  .panel{
+    display:none;
+  }
+  .panel.open{ display:block; }
+  .checkline{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--amber-bg);
+    border:1.5px solid #ffdcb0;
+    border-radius:10px;
+    padding:12px;
+    margin-bottom:12px;
+    cursor:pointer;
+  }
+  .checkline input{ width:19px; height:19px; accent-color:var(--orange-dark); }
+  .checkline.checked{
+    background:var(--green-bg);
+    border-color:#bfe8cf;
+  }
+  .refuel-block{
+    border:1.5px dashed var(--line);
+    border-radius:10px;
+    padding:12px;
+    margin-bottom:12px;
+  }
+  .refuel-row{
+    display:grid;
+    grid-template-columns:1fr 1fr auto;
+    gap:8px;
+    margin-bottom:8px;
+  }
+  .refuel-row select, .refuel-row input{
+    padding:9px 8px;
+    border-radius:8px;
+    border:1.5px solid var(--line);
+    font-size:14px;
+  }
+  .rm-btn{
+    background:#fdeeee;
+    color:#c23b3b;
+    border:1px solid #f4c6c6;
+    border-radius:8px;
+    width:36px;
+    font-size:16px;
+    cursor:pointer;
+  }
+  .add-refuel-btn{
+    background:none;
+    border:1.5px solid var(--orange);
+    color:var(--orange-dark);
+    border-radius:9px;
+    padding:9px 12px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .toggle2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-bottom:12px;
+  }
+  .toggle2 button{
+    padding:11px 8px;
+    border-radius:10px;
+    border:1.5px solid var(--line);
+    background:#fbfbfa;
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:600;
+    font-size:16px;
+    color:var(--navy);
+    cursor:pointer;
+  }
+  .toggle2 button.sel{
+    background:var(--navy);
+    border-color:var(--navy);
+    color:#fff;
+  }
+  .gps-box{
+    background:#f6f7fb;
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    padding:12px;
+    font-size:13.5px;
+    color:var(--muted);
+    margin-bottom:12px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .gps-box.ok{ color:var(--green); }
+  .btn-row{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:10px;
+    margin-top:6px;
+  }
+  .btn-row.two{ grid-template-columns:1fr 1fr; }
+  .btn{
+    padding:14px 10px;
+    border-radius:11px;
+    border:none;
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:18px;
+    font-weight:700;
+    cursor:pointer;
+    text-align:center;
+  }
+  .btn.primary{ background:var(--orange); color:#fff; }
+  .btn.primary:active{ background:var(--orange-dark); }
+  .btn.secondary{ background:#fff; color:var(--navy); border:1.5px solid var(--line); }
+  .btn.ghost{ background:var(--navy); color:#fff; }
+  .history-item{
+    border-bottom:1px solid var(--line);
+    padding:12px 0;
+    font-size:14px;
+  }
+  .history-item:last-child{ border-bottom:none; }
+  .history-item .htop{
+    display:flex;
+    justify-content:space-between;
+    font-weight:600;
+    color:var(--navy);
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:16.5px;
+  }
+  .history-item .hmeta{
+    color:var(--muted);
+    font-size:12.5px;
+    margin-top:2px;
+  }
+  .history-item .hdetail{
+    margin-top:6px;
+    line-height:1.5;
+  }
+  .empty{
+    color:var(--muted);
+    font-size:14px;
+    text-align:center;
+    padding:10px 0;
+  }
+  .clear-link{
+    background:none;
+    border:none;
+    color:var(--muted);
+    font-size:12.5px;
+    text-decoration:underline;
+    cursor:pointer;
+    padding:0;
+  }
+  .login-wrap{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+  .login-card{
+    background:var(--card);
+    border-radius:var(--radius);
+    border:1px solid var(--line);
+    padding:26px 22px;
+    width:100%;
+    max-width:360px;
+    text-align:center;
+  }
+  .login-card .logo{
+    font-size:38px;
+    margin-bottom:6px;
+  }
+  .login-card h1{
+    font-size:26px;
+    margin:0 0 4px;
+    color:var(--navy);
+  }
+  .login-card p{
+    color:var(--muted);
+    font-size:13.5px;
+    margin:0 0 18px;
+  }
+  .login-card .field{ text-align:left; }
+  .login-error{
+    color:#c23b3b;
+    font-size:13px;
+    margin:-4px 0 10px;
+    display:none;
+  }
+  .driver-badge{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:#eef1f6;
+    border-radius:10px;
+    padding:10px 12px;
+    font-size:14px;
+    color:var(--navy);
+    font-weight:600;
+  }
+  .logout-btn{
+    background:none;
+    border:none;
+    color:#9fb0c9;
+    font-size:12.5px;
+    text-decoration:underline;
+    cursor:pointer;
+    padding:0;
+  }
+  .menu-primary{
+    background:var(--orange);
+    border-radius:var(--radius);
+    padding:18px 16px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    cursor:pointer;
+    color:#fff;
+    border:none;
+    width:100%;
+    text-align:left;
+    font-family:inherit;
+  }
+  .menu-primary .m-ic{
+    width:42px; height:42px;
+    border-radius:11px;
+    background:rgba(255,255,255,0.22);
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px;
+    flex-shrink:0;
+  }
+  .menu-primary .m-txt strong{
+    display:block;
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:19px;
+    font-weight:600;
+  }
+  .menu-primary .m-txt span{
+    font-size:12.5px;
+    color:#ffe9d6;
+  }
+  .menu-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:10px;
+  }
+  .menu-secondary{
+    background:#fff;
+    border:1.5px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px 12px;
+    cursor:pointer;
+    font-family:inherit;
+    text-align:left;
+    position:relative;
+  }
+  .menu-secondary .m-ic{ font-size:20px; display:block; margin-bottom:8px; }
+  .menu-secondary strong{
+    display:block;
+    font-size:14px;
+    font-weight:600;
+    color:var(--navy);
+  }
+  .menu-secondary span.sub{
+    display:block;
+    font-size:11.5px;
+    color:var(--muted);
+    margin-top:2px;
+  }
+  .menu-secondary .soon-badge{
+    position:absolute;
+    top:10px; right:10px;
+    font-size:10px;
+    background:var(--amber-bg);
+    color:var(--orange-dark);
+    border-radius:6px;
+    padding:2px 6px;
+    font-weight:600;
+  }
+  .menu-row{
+    background:#fff;
+    border:1.5px solid var(--line);
+    border-radius:var(--radius);
+    padding:13px 14px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    cursor:pointer;
+    margin-top:10px;
+    font-family:inherit;
+    width:100%;
+    text-align:left;
+  }
+  .menu-row strong{ font-size:14px; color:var(--navy); font-weight:600; }
+  .back-link{
+    background:none;
+    border:none;
+    color:var(--navy);
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    padding:0;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-family:'Barlow Condensed',sans-serif;
+  }
+  .placeholder-box{
+    text-align:center;
+    padding:40px 20px;
+    color:var(--muted);
+  }
+  .placeholder-box .p-ic{ font-size:40px; margin-bottom:10px; display:block; }
+</style>
+</head>
+<body>
+
+<div class="login-wrap" id="loginScreen">
+  <div class="login-card">
+    <div class="logo">🚚</div>
+    <h1>เช็คอินรถขนส่ง</h1>
+    <p>เข้าสู่ระบบด้วยรหัสพนักงาน</p>
+    <div class="field">
+      <label>รหัสพนักงาน</label>
+      <input type="text" id="loginId" placeholder="เช่น NT010" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>รหัสผ่าน</label>
+      <input type="password" id="loginPass" placeholder="รหัสผ่าน" onkeydown="if(event.key==='Enter') doLogin()">
+    </div>
+    <div class="login-error" id="loginError">รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง</div>
+    <button class="btn primary" style="width:100%;" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <p id="loginStatus" style="font-size:12px;color:var(--muted);margin:10px 0 0;"></p>
+  </div>
+</div>
+
+<!-- หน้าเมนูหลัก -->
+<div id="homeMenu" style="display:none;">
+  <header>
+    <div class="wrap">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+          <p class="eyebrow" style="margin-bottom:4px;">สวัสดี</p>
+          <p style="font-size:16px; font-weight:500; margin:0;" id="homeDriverName">—</p>
+          <p class="eyebrow" style="margin:2px 0 0;" id="homeDriverId">—</p>
+        </div>
+        <button class="logout-btn" onclick="doLogout()">ออกจากระบบ</button>
+      </div>
+      <h1 style="margin-top:14px; font-size:26px;">🚚 เช็คอินรถขนส่ง</h1>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="card">
+      <button class="menu-primary" onclick="showScreen('mainApp')">
+        <span class="m-ic">📍</span>
+        <span class="m-txt"><strong>เช็คอิน</strong><span>แจ้งสถานะการเดินทางวันนี้</span></span>
+      </button>
+      <div class="menu-grid">
+        <button class="menu-secondary" onclick="showScreen('placeholder-schedule')">
+          <span class="soon-badge">เร็วๆ นี้</span>
+          <span class="m-ic">🗓️</span>
+          <strong>ตารางงาน</strong>
+          <span class="sub">ดูคิวเที่ยววิ่ง</span>
+        </button>
+        <button class="menu-secondary" onclick="showScreen('placeholder-payslip')">
+          <span class="soon-badge">เร็วๆ นี้</span>
+          <span class="m-ic">💰</span>
+          <strong>สลิปเงินเดือน</strong>
+          <span class="sub">ดูย้อนหลังได้</span>
+        </button>
+      </div>
+      <button class="menu-row" onclick="showScreen('placeholder-emergency')">
+        <span class="m-ic" style="font-size:18px;">📞</span>
+        <strong>ติดต่อฉุกเฉิน</strong>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- หน้าว่างสำหรับฟีเจอร์ที่ยังไม่เปิดใช้งาน -->
+<div id="placeholder-schedule" style="display:none;">
+  <header>
+    <div class="wrap">
+      <button class="back-link" onclick="showScreen('homeMenu')" style="color:#fff;">‹ กลับ</button>
+      <h1 style="margin-top:10px;">🗓️ ตารางงาน</h1>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="card">
+      <div class="placeholder-box">
+        <span class="p-ic">🛠️</span>
+        ฟีเจอร์นี้ยังไม่เปิดใช้งาน<br>อยู่ระหว่างการพัฒนา เร็วๆ นี้
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="placeholder-payslip" style="display:none;">
+  <header>
+    <div class="wrap">
+      <button class="back-link" onclick="showScreen('homeMenu')" style="color:#fff;">‹ กลับ</button>
+      <h1 style="margin-top:10px;">💰 สลิปเงินเดือน</h1>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="card">
+      <div class="placeholder-box">
+        <span class="p-ic">🛠️</span>
+        ฟีเจอร์นี้ยังไม่เปิดใช้งาน<br>อยู่ระหว่างการพัฒนา เร็วๆ นี้
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="placeholder-emergency" style="display:none;">
+  <header>
+    <div class="wrap">
+      <button class="back-link" onclick="showScreen('homeMenu')" style="color:#fff;">‹ กลับ</button>
+      <h1 style="margin-top:10px;">📞 ติดต่อฉุกเฉิน</h1>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="card">
+      <div class="placeholder-box">
+        <span class="p-ic">🛠️</span>
+        ฟีเจอร์นี้ยังไม่เปิดใช้งาน<br>อยู่ระหว่างการพัฒนา เร็วๆ นี้
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="mainApp" style="display:none;">
+
+<header>
+  <div class="wrap">
+    <button class="back-link" onclick="showScreen('homeMenu')" style="color:#fff; margin-bottom:8px;">‹ กลับเมนูหลัก</button>
+    <p class="eyebrow">ระบบเช็คอินสำหรับพนักงานขับรถ · v6</p>
+    <h1>🚚 เช็คอินรถขนส่ง</h1>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+    <div class="driver-badge">
+      <span id="driverBadgeText">👤 —</span>
+      <button class="logout-btn" onclick="doLogout()">ออกจากระบบ</button>
+    </div>
+  </div>
+
+  <!-- ข้อมูลเที่ยวรถ -->
+  <div class="card">
+    <h2>📋 ข้อมูลเที่ยวรถ</h2>
+    <div class="field">
+      <label>ชื่อ พขร.</label>
+      <input type="text" id="driverName" placeholder="ชื่อ-นามสกุล" readonly>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>ทะเบียนหัว</label>
+        <input type="text" id="plateHead" placeholder="เช่น 82-1234">
+      </div>
+      <div class="field">
+        <label>ทะเบียนหาง</label>
+        <input type="text" id="plateTail" placeholder="เช่น 82-5678">
+      </div>
+    </div>
+    <div class="field">
+      <label>ประเภทสินค้า</label>
+      <select id="productType">
+        <option value="">— เลือกประเภทสินค้า —</option>
+        <option>เมทานอล</option>
+        <option>DINP</option>
+        <option>3040</option>
+        <option>MEG</option>
+        <option>น้ำมันใส</option>
+        <option>B100</option>
+        <option>น้ำมันเตา</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>เลขไมล์ปัจจุบัน (กม.)</label>
+      <input type="number" id="mileageBase" placeholder="0">
+      <div class="hint">ครั้งต่อไประบบจะแนะนำเลขไมล์ให้อัตโนมัติจากระยะทาง GPS</div>
+    </div>
+  </div>
+
+  <!-- ปุ่มสถานะ -->
+  <div class="card">
+    <h2>✅ กดเช็คอินตามสถานะ</h2>
+    <div class="status-grid" id="statusGrid">
+      <div class="status-btn" data-status="depart"><span class="ic">🚛</span>ออกเดินทาง</div>
+      <div class="status-btn" data-status="warehouse"><span class="ic">🏭</span>ถึงคลังรับสินค้า</div>
+      <div class="status-btn" data-status="destination"><span class="ic">📍</span>ถึงสถานที่ปลายทาง</div>
+      <div class="status-btn" data-status="parking"><span class="ic">🅿️</span>ถึงลานจอด</div>
+      <div class="status-btn" data-status="rest"><span class="ic">🛑</span>จอดพัก</div>
+      <div class="status-btn" data-status="startdrive"><span class="ic">🚀</span>เริ่มออกเดินทาง</div>
+    </div>
+  </div>
+
+  <!-- แผงเช็คอิน: ออกเดินทาง -->
+  <div class="card panel" id="panel-depart">
+    <h2>🚛 ออกเดินทาง</h2>
+    <div class="field">
+      <label>ต้นทาง</label>
+      <select id="departOrigin">
+        <option value="">— เลือกต้นทาง —</option>
+        <option>NT</option>
+        <option>ลานจอดพระประแดง</option>
+        <option>คลองสอง</option>
+      </select>
+    </div>
+    <div id="refuel-depart"></div>
+    <div class="gps-box" id="gps-depart">📡 กำลังขอตำแหน่ง GPS...</div>
+    <div class="field">
+      <label>เลขไมล์ (กม.) — แก้ไขได้</label>
+      <input type="number" id="mileage-depart" placeholder="0">
+    </div>
+    <div class="btn-row two">
+      <button class="btn secondary" onclick="closePanel()">ย้อนกลับ</button>
+      <button class="btn primary" onclick="confirmCheckin('depart')">ยืนยันเช็คอิน</button>
+    </div>
+  </div>
+
+  <!-- แผงเช็คอิน: ถึงคลังรับสินค้า -->
+  <div class="card panel" id="panel-warehouse">
+    <h2>🏭 ถึงคลังรับสินค้า</h2>
+    <div class="field">
+      <label>ชื่อสถานที่</label>
+      <input type="text" id="placeWarehouse" placeholder="พิมพ์ชื่อคลัง/สถานที่">
+    </div>
+    <div class="checkline" id="checkWarehouse" onclick="toggleCheck('checkWarehouse')">
+      <input type="checkbox" id="chkWarehouse" onclick="event.stopPropagation()">
+      <span>รับสินค้าครบตามจำนวน</span>
+    </div>
+    <div class="field">
+      <label>จำนวน (ลิตร/กก.)</label>
+      <input type="number" id="qtyWarehouse" placeholder="0">
+    </div>
+    <div id="refuel-warehouse"></div>
+    <div class="gps-box" id="gps-warehouse">📡 กำลังขอตำแหน่ง GPS...</div>
+    <div class="field">
+      <label>เลขไมล์ (กม.) — แก้ไขได้</label>
+      <input type="number" id="mileage-warehouse" placeholder="0">
+    </div>
+    <div class="btn-row two">
+      <button class="btn secondary" onclick="closePanel()">ย้อนกลับ</button>
+      <button class="btn primary" onclick="confirmCheckin('warehouse')">ยืนยันเช็คอิน</button>
+    </div>
+  </div>
+
+  <!-- แผงเช็คอิน: ถึงสถานที่ปลายทาง -->
+  <div class="card panel" id="panel-destination">
+    <h2>📍 ถึงสถานที่ปลายทาง</h2>
+    <div class="field">
+      <label>ชื่อสถานที่</label>
+      <input type="text" id="placeDestination" placeholder="พิมพ์ชื่อสถานที่ปลายทาง">
+    </div>
+    <div class="checkline" id="checkDestination" onclick="toggleCheck('checkDestination')">
+      <input type="checkbox" id="chkDestination" onclick="event.stopPropagation()">
+      <span>ส่งสินค้าตามจำนวน (ลิตร/กก.)</span>
+    </div>
+    <div class="field">
+      <label>จำนวน (ลิตร/กก.)</label>
+      <input type="number" id="qtyDestination" placeholder="0">
+    </div>
+    <div id="refuel-destination"></div>
+    <div class="gps-box" id="gps-destination">📡 กำลังขอตำแหน่ง GPS...</div>
+    <div class="field">
+      <label>เลขไมล์ (กม.) — แก้ไขได้</label>
+      <input type="number" id="mileage-destination" placeholder="0">
+    </div>
+    <div class="btn-row two">
+      <button class="btn secondary" onclick="closePanel()">ย้อนกลับ</button>
+      <button class="btn primary" onclick="confirmCheckin('destination')">ยืนยันเช็คอิน</button>
+    </div>
+  </div>
+
+  <!-- แผงเช็คอิน: ถึงลานจอด -->
+  <div class="card panel" id="panel-parking">
+    <h2>🅿️ ถึงลานจอด</h2>
+    <div class="field">
+      <label>สถานที่จอด</label>
+      <select id="parkingLot">
+        <option value="">— เลือกลานจอด —</option>
+        <option>NT</option>
+        <option>ลานจอดพระประแดง</option>
+        <option>คลองสอง</option>
+      </select>
+    </div>
+    <div id="refuel-parking"></div>
+    <div class="gps-box" id="gps-parking">📡 กำลังขอตำแหน่ง GPS...</div>
+    <div class="field">
+      <label>เลขไมล์ (กม.) — แก้ไขได้</label>
+      <input type="number" id="mileage-parking" placeholder="0">
+    </div>
+    <div class="btn-row two">
+      <button class="btn secondary" onclick="closePanel()">ย้อนกลับ</button>
+      <button class="btn primary" onclick="confirmCheckin('parking')">ยืนยันเช็คอิน</button>
+    </div>
+  </div>
+
+  <!-- แผงเช็คอิน: จอดพัก -->
+  <div class="card panel" id="panel-rest">
+    <h2>🛑 จอดพัก</h2>
+    <div class="field">
+      <label>ขาไปหรือขากลับ</label>
+      <div class="toggle2" id="tripDirection-rest">
+        <button type="button" data-dir="ไป" onclick="selectDirection('rest','ไป')">ขาไป</button>
+        <button type="button" data-dir="กลับ" onclick="selectDirection('rest','กลับ')">ขากลับ</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>สถานที่จอด</label>
+      <input type="text" id="place-rest" placeholder="พิมพ์ชื่อสถานที่จอด">
+    </div>
+    <div class="field">
+      <label>สาเหตุที่จอด</label>
+      <select id="reason-rest">
+        <option value="">— เลือกสาเหตุ —</option>
+        <option>จอดตัดเวลา</option>
+        <option>จอดพักทานข้าว</option>
+        <option>จอดพักเข้าห้องน้ำ</option>
+        <option>จอดนอน</option>
+        <option>จอดฉุกเฉิน</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>เวลา</label>
+      <input type="datetime-local" id="time-rest">
+    </div>
+    <div class="btn-row two">
+      <button class="btn secondary" onclick="closePanel()">ย้อนกลับ</button>
+      <button class="btn primary" onclick="confirmCheckin('rest')">ยืนยันเช็คอิน</button>
+    </div>
+  </div>
+
+  <!-- แผงเช็คอิน: เริ่มออกเดินทาง -->
+  <div class="card panel" id="panel-startdrive">
+    <h2>🚀 เริ่มออกเดินทาง</h2>
+    <div class="field">
+      <label>ขาไปหรือขากลับ</label>
+      <div class="toggle2" id="tripDirection-startdrive">
+        <button type="button" data-dir="ไป" onclick="selectDirection('startdrive','ไป')">ขาไป</button>
+        <button type="button" data-dir="กลับ" onclick="selectDirection('startdrive','กลับ')">ขากลับ</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>สถานที่จอด</label>
+      <input type="text" id="place-startdrive" placeholder="พิมพ์ชื่อสถานที่จอด (จุดที่ออกเดินทาง)">
+    </div>
+    <div class="field">
+      <label>สาเหตุที่จอด</label>
+      <select id="reason-startdrive">
+        <option value="">— เลือกสาเหตุ —</option>
+        <option>จอดตัดเวลา</option>
+        <option>จอดพักทานข้าว</option>
+        <option>จอดพักเข้าห้องน้ำ</option>
+        <option>จอดนอน</option>
+        <option>จอดฉุกเฉิน</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>เวลา</label>
+      <input type="datetime-local" id="time-startdrive">
+    </div>
+    <div class="btn-row two">
+      <button class="btn secondary" onclick="closePanel()">ย้อนกลับ</button>
+      <button class="btn primary" onclick="confirmCheckin('startdrive')">ยืนยันเช็คอิน</button>
+    </div>
+  </div>
+
+  <!-- รายการล่าสุด -->
+  <div class="card">
+    <h2 style="display:flex;justify-content:space-between;align-items:center;">
+      <span>🕓 รายการล่าสุด</span>
+      <button class="clear-link" onclick="clearHistory()">ล้างประวัติ</button>
+    </h2>
+    <div id="historyList"><div class="empty">ยังไม่มีการเช็คอิน</div></div>
+  </div>
+
+</div>
+</div>
+
+<script>
+// ==== ตั้งค่าการเชื่อมต่อ Google Sheet ====
+// วาง URL ของ Google Apps Script Web App ที่ deploy แล้วตรงนี้ (ดูวิธีทำใน README)
+const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbzrrNhT0MG2V6KKDoSdaLROFnb3dsZm1X4n533IBbcnW7kUeMi1fkrezzU3FNB9AyGQtQ/exec';
+
+// รายชื่อพนักงานสำรอง กรณียังไม่ได้ตั้งค่า SHEET_WEBHOOK_URL หรือดึงจากชีทไม่สำเร็จ
+// (แนะนำให้ดูแลรายชื่อผ่านแท็บ "Drivers" ใน Google Sheet แทนการแก้ตรงนี้)
+let EMPLOYEES = [];
+
+function loadCachedEmployees(){
+  return JSON.parse(localStorage.getItem('employeesCache')||'[]');
+}
+function cacheEmployees(list){
+  localStorage.setItem('employeesCache', JSON.stringify(list));
+}
+
+async function fetchEmployees(){
+  const statusEl = document.getElementById('loginStatus');
+  const cached = loadCachedEmployees();
+  if(cached.length) EMPLOYEES = cached; // ใช้ของเก่าไปพลางๆ ระหว่างรอโหลดใหม่
+
+  if(!SHEET_WEBHOOK_URL || SHEET_WEBHOOK_URL.indexOf('PASTE_YOUR')>-1){
+    if(!cached.length && statusEl) statusEl.textContent='ยังไม่ได้ตั้งค่า Google Sheet — ติดต่อผู้ดูแลระบบ';
+    return;
+  }
+  if(statusEl && !cached.length) statusEl.textContent='กำลังโหลดรายชื่อพนักงาน...';
+  try{
+    const res = await fetch(SHEET_WEBHOOK_URL, {method:'GET'});
+    const data = await res.json();
+    if(data.result==='success' && Array.isArray(data.employees) && data.employees.length){
+      EMPLOYEES = data.employees;
+      cacheEmployees(EMPLOYEES);
+    }
+    if(statusEl) statusEl.textContent='';
+  }catch(err){
+    if(statusEl) statusEl.textContent = cached.length
+      ? 'ใช้รายชื่อที่บันทึกไว้ล่าสุด (ออฟไลน์)'
+      : 'โหลดรายชื่อพนักงานไม่สำเร็จ ตรวจสอบอินเทอร์เน็ต';
+  }
+}
+
+function doLogin(){
+  const id = document.getElementById('loginId').value.trim().toUpperCase();
+  const pass = document.getElementById('loginPass').value.trim();
+  const emp = EMPLOYEES.find(e => e.id.toUpperCase()===id && e.pass===pass);
+  const errEl = document.getElementById('loginError');
+  if(!emp){
+    errEl.style.display='block';
+    return;
+  }
+  errEl.style.display='none';
+  localStorage.setItem('loggedInDriver', JSON.stringify({id:emp.id, name:emp.name}));
+  enterApp(emp);
+}
+
+function doLogout(){
+  if(!confirm('ต้องการออกจากระบบหรือไม่?')) return;
+  localStorage.removeItem('loggedInDriver');
+  document.getElementById('loginId').value='';
+  document.getElementById('loginPass').value='';
+  showScreen('loginScreen');
+}
+
+const ALL_SCREENS = ['loginScreen','homeMenu','mainApp','placeholder-schedule','placeholder-payslip','placeholder-emergency'];
+function showScreen(id){
+  ALL_SCREENS.forEach(s=>{
+    const el = document.getElementById(s);
+    if(!el) return;
+    el.style.display = (s===id) ? (s==='loginScreen' ? 'flex' : 'block') : 'none';
+  });
+  window.scrollTo(0,0);
+}
+
+let currentDriverId = '';
+function enterApp(emp){
+  currentDriverId = emp.id;
+  document.getElementById('driverName').value = emp.name;
+  document.getElementById('driverBadgeText').textContent = '👤 '+emp.name+' ('+emp.id+')';
+  document.getElementById('homeDriverName').textContent = emp.name;
+  document.getElementById('homeDriverId').textContent = 'รหัสพนักงาน '+emp.id;
+  showScreen('homeMenu');
+}
+
+fetchEmployees().then(()=>{
+  const saved = JSON.parse(localStorage.getItem('loggedInDriver')||'null');
+  if(saved){
+    const emp = EMPLOYEES.find(e=>e.id===saved.id) || saved;
+    enterApp(emp);
+  }
+});
+
+const STATUS_LABEL = {
+  depart:'ออกเดินทาง', warehouse:'ถึงคลังรับสินค้า',
+  destination:'ถึงสถานที่ปลายทาง', parking:'ถึงลานจอด',
+  rest:'จอดพัก', startdrive:'เริ่มออกเดินทาง'
+};
+const STATUS_ICON = { depart:'🚛', warehouse:'🏭', destination:'📍', parking:'🅿️', rest:'🛑', startdrive:'🚀' };
+const REFUEL_LOCATIONS = ['NT','คลองสอง','บางจาก'];
+
+let currentPanel = null;
+let currentGps = { depart:null, warehouse:null, destination:null, parking:null };
+let directionState = { rest:null, startdrive:null };
+let refuelCounters = { depart:0, warehouse:0, destination:0, parking:0 };
+
+function loadHistory(){ return JSON.parse(localStorage.getItem('checkins')||'[]'); }
+function saveHistory(list){ localStorage.setItem('checkins', JSON.stringify(list)); }
+function loadLast(){ return JSON.parse(localStorage.getItem('lastCheckin')||'null'); }
+function saveLast(obj){ localStorage.setItem('lastCheckin', JSON.stringify(obj)); }
+
+function haversineKm(lat1,lon1,lat2,lon2){
+  const R=6371, toRad=d=>d*Math.PI/180;
+  const dLat=toRad(lat2-lat1), dLon=toRad(lon2-lon1);
+  const a=Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+document.querySelectorAll('.status-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=> openPanel(btn.dataset.status));
+});
+
+function openPanel(status){
+  if(currentPanel) document.getElementById('panel-'+currentPanel).classList.remove('open');
+  document.querySelectorAll('.status-btn').forEach(b=>b.classList.toggle('active', b.dataset.status===status));
+  currentPanel = status;
+  document.getElementById('panel-'+status).classList.add('open');
+  if(!refuelCounters[status+'']===undefined){} // no-op guard
+  if(['depart','warehouse','destination','parking'].includes(status) && document.getElementById('refuel-'+status).children.length===0){
+    // start with zero rows, user adds via button
+    renderRefuelBlock(status);
+  }
+  requestGps(status);
+  if(status==='rest' || status==='startdrive'){
+    const t = document.getElementById('time-'+status);
+    if(t && !t.value){
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      t.value = now.toISOString().slice(0,16);
+    }
+  }
+  document.getElementById('panel-'+status).scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function closePanel(){
+  if(currentPanel) document.getElementById('panel-'+currentPanel).classList.remove('open');
+  document.querySelectorAll('.status-btn').forEach(b=>b.classList.remove('active'));
+  currentPanel=null;
+}
+
+function requestGps(status){
+  const box=document.getElementById('gps-'+status);
+  if(!box) return;
+  box.className='gps-box';
+  box.textContent='📡 กำลังขอตำแหน่ง GPS...';
+  if(!navigator.geolocation){
+    box.textContent='⚠️ อุปกรณ์นี้ไม่รองรับ GPS';
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const lat=pos.coords.latitude, lon=pos.coords.longitude;
+    currentGps[status]={lat,lon};
+    box.className='gps-box ok';
+    box.textContent='📡 ตำแหน่งปัจจุบัน: '+lat.toFixed(5)+', '+lon.toFixed(5);
+    suggestMileage(status, lat, lon);
+  }, err=>{
+    box.textContent='⚠️ ไม่สามารถขอตำแหน่งได้ ('+err.message+')';
+  }, {enableHighAccuracy:true, timeout:10000});
+}
+
+function suggestMileage(status, lat, lon){
+  const last = loadLast();
+  const input = document.getElementById('mileage-'+status);
+  if(input.value) return; // don't override if user already typed
+  if(last && last.gps){
+    const dist = haversineKm(last.gps.lat,last.gps.lon,lat,lon);
+    input.value = (last.mileage + dist).toFixed(1);
+  } else {
+    const base = document.getElementById('mileageBase').value;
+    if(base) input.value = base;
+  }
+}
+
+function renderRefuelBlock(status){
+  const container = document.getElementById('refuel-'+status);
+  container.innerHTML = '';
+  const block = document.createElement('div');
+  block.className='refuel-block';
+  block.id='refuel-block-'+status;
+  block.innerHTML = '<div id="refuel-rows-'+status+'"></div>' +
+    '<button type="button" class="add-refuel-btn" onclick="addRefuelRow(\''+status+'\')">⛽ + เติมน้ำมัน</button>';
+  container.appendChild(block);
+}
+
+function addRefuelRow(status){
+  const rowsEl = document.getElementById('refuel-rows-'+status);
+  const id = 'rf-'+status+'-'+(refuelCounters[status]++);
+  const row = document.createElement('div');
+  row.className='refuel-row';
+  row.id=id;
+  const opts = REFUEL_LOCATIONS.map(l=>'<option>'+l+'</option>').join('');
+  row.innerHTML =
+    '<select data-role="loc"><option value="">สถานที่เติม</option>'+opts+'</select>'+
+    '<input type="number" data-role="liters" placeholder="จำนวนลิตร">'+
+    '<button type="button" class="rm-btn" onclick="document.getElementById(\''+id+'\').remove()">×</button>';
+  rowsEl.appendChild(row);
+}
+
+function selectDirection(status, dir){
+  directionState[status] = dir;
+  document.querySelectorAll('#tripDirection-'+status+' button').forEach(b=>{
+    b.classList.toggle('sel', b.dataset.dir===dir);
+  });
+}
+
+function toggleCheck(lineId){
+  const line = document.getElementById(lineId);
+  const box = line.querySelector('input[type=checkbox]');
+  box.checked = !box.checked;
+  line.classList.toggle('checked', box.checked);
+}
+
+function collectRefuels(status){
+  const rowsEl = document.getElementById('refuel-rows-'+status);
+  if(!rowsEl) return [];
+  const out=[];
+  rowsEl.querySelectorAll('.refuel-row').forEach(r=>{
+    const loc = r.querySelector('[data-role=loc]').value;
+    const liters = r.querySelector('[data-role=liters]').value;
+    if(loc || liters) out.push({loc: loc||'-', liters: liters||'0'});
+  });
+  return out;
+}
+
+function tripSnapshot(){
+  return {
+    driverId: currentDriverId || '-',
+    driver: document.getElementById('driverName').value || '-',
+    head: document.getElementById('plateHead').value || '-',
+    tail: document.getElementById('plateTail').value || '-',
+    product: document.getElementById('productType').value || '-'
+  };
+}
+
+function pushHistory(entry){
+  const list = loadHistory();
+  list.unshift(entry);
+  saveHistory(list.slice(0,50));
+  renderHistory();
+  sendToSheet(entry);
+}
+
+function sendToSheet(entry){
+  if(!SHEET_WEBHOOK_URL || SHEET_WEBHOOK_URL.indexOf('PASTE_YOUR')>-1) return;
+  fetch(SHEET_WEBHOOK_URL, {
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(entry)
+  }).catch(()=>{ /* offline หรือเน็ตมีปัญหา ข้อมูลยังอยู่ในเครื่อง ไม่หาย */ });
+}
+
+function renderHistory(){
+  const list = loadHistory();
+  const el = document.getElementById('historyList');
+  if(list.length===0){ el.innerHTML='<div class="empty">ยังไม่มีการเช็คอิน</div>'; return; }
+  el.innerHTML = list.map(item=>{
+    let lines = [];
+    if(item.status==='depart') lines.push('ต้นทาง: '+item.origin);
+    if(item.status==='warehouse'){
+      lines.push('สถานที่: '+item.place);
+      lines.push((item.received?'✅ รับสินค้าครบตามจำนวน':'ยังไม่ครบ')+' · จำนวน '+item.qty+' ลิตร/กก.');
+    }
+    if(item.status==='destination'){
+      lines.push('สถานที่: '+item.place);
+      lines.push((item.delivered?'✅ ส่งสินค้าตามจำนวน':'ยังไม่ครบ')+' · จำนวน '+item.qty+' ลิตร/กก.');
+    }
+    if(item.status==='parking'){
+      lines.push('ลานจอด: '+item.lot);
+    }
+    if(item.status==='rest' || item.status==='startdrive'){
+      lines.push('สถานที่จอด: '+item.place+' · ขา'+(item.direction||'-'));
+      if(item.reason) lines.push('สาเหตุ: '+item.reason);
+    }
+    if(item.refuels && item.refuels.length){
+      lines.push('⛽ เติมน้ำมัน: '+item.refuels.map(r=>r.loc+' ('+r.liters+' ล.)').join(', '));
+    }
+    if(item.mileage!==null && item.mileage!==undefined) lines.push('เลขไมล์: '+item.mileage+' กม.');
+    if(item.gps) lines.push('GPS: '+item.gps.lat.toFixed(5)+', '+item.gps.lon.toFixed(5));
+    return '<div class="history-item">'+
+      '<div class="htop"><span>'+STATUS_ICON[item.status]+' '+STATUS_LABEL[item.status]+'</span><span>'+item.time+'</span></div>'+
+      '<div class="hmeta">'+item.driver+' · '+item.head+'/'+item.tail+' · '+item.product+'</div>'+
+      '<div class="hdetail">'+lines.join('<br>')+'</div>'+
+      '</div>';
+  }).join('');
+}
+
+function clearHistory(){
+  if(confirm('ต้องการล้างประวัติการเช็คอินทั้งหมดหรือไม่?')){
+    localStorage.removeItem('checkins');
+    localStorage.removeItem('lastCheckin');
+    renderHistory();
+  }
+}
+
+function confirmCheckin(status){
+  const mileageInput = document.getElementById('mileage-'+status);
+  const mileage = mileageInput ? parseFloat(mileageInput.value||'0') : null;
+  const gps = currentGps[status] || null;
+  const snap = tripSnapshot();
+  let time = new Date().toLocaleString('th-TH', {dateStyle:'short', timeStyle:'short'});
+
+  let entry = Object.assign({status, mileage, gps, time}, snap);
+
+  if(status==='depart'){
+    const origin = document.getElementById('departOrigin').value;
+    if(!origin){ alert('กรุณาเลือกต้นทาง'); return; }
+    entry.origin = origin;
+    entry.refuels = collectRefuels('depart');
+  }
+  if(status==='warehouse'){
+    entry.place = document.getElementById('placeWarehouse').value || '-';
+    entry.received = document.getElementById('chkWarehouse').checked;
+    entry.qty = document.getElementById('qtyWarehouse').value || '0';
+    entry.refuels = collectRefuels('warehouse');
+  }
+  if(status==='destination'){
+    entry.place = document.getElementById('placeDestination').value || '-';
+    entry.delivered = document.getElementById('chkDestination').checked;
+    entry.qty = document.getElementById('qtyDestination').value || '0';
+    entry.refuels = collectRefuels('destination');
+  }
+  if(status==='parking'){
+    const lot = document.getElementById('parkingLot').value;
+    if(!lot){ alert('กรุณาเลือกสถานที่จอด'); return; }
+    entry.lot = lot;
+    entry.refuels = collectRefuels('parking');
+  }
+  if(status==='rest' || status==='startdrive'){
+    const dir = directionState[status];
+    const place = document.getElementById('place-'+status).value;
+    if(!dir){ alert('กรุณาเลือกขาไปหรือขากลับ'); return; }
+    if(!place){ alert('กรุณาพิมพ์สถานที่จอด'); return; }
+    entry.direction = dir;
+    entry.place = place;
+    entry.reason = document.getElementById('reason-'+status).value;
+    const timeVal = document.getElementById('time-'+status).value;
+    if(timeVal){
+      entry.time = new Date(timeVal).toLocaleString('th-TH', {dateStyle:'short', timeStyle:'short'});
+    }
+  }
+
+  pushHistory(entry);
+  if(mileage!==null) saveLast({mileage, gps});
+  resetPanelFields(status);
+  closePanel();
+}
+
+function resetPanelFields(status){
+  if(status==='depart'){
+    document.getElementById('departOrigin').value='';
+    document.getElementById('mileage-depart').value='';
+    document.getElementById('refuel-rows-depart') && (document.getElementById('refuel-rows-depart').innerHTML='');
+  }
+  if(status==='warehouse'){
+    document.getElementById('placeWarehouse').value='';
+    document.getElementById('chkWarehouse').checked=false;
+    document.getElementById('checkWarehouse').classList.remove('checked');
+    document.getElementById('qtyWarehouse').value='';
+    document.getElementById('mileage-warehouse').value='';
+    document.getElementById('refuel-rows-warehouse') && (document.getElementById('refuel-rows-warehouse').innerHTML='');
+  }
+  if(status==='destination'){
+    document.getElementById('placeDestination').value='';
+    document.getElementById('chkDestination').checked=false;
+    document.getElementById('checkDestination').classList.remove('checked');
+    document.getElementById('qtyDestination').value='';
+    document.getElementById('mileage-destination').value='';
+    document.getElementById('refuel-rows-destination') && (document.getElementById('refuel-rows-destination').innerHTML='');
+  }
+  if(status==='parking'){
+    document.getElementById('parkingLot').value='';
+    document.getElementById('mileage-parking').value='';
+    document.getElementById('refuel-rows-parking') && (document.getElementById('refuel-rows-parking').innerHTML='');
+  }
+  if(status==='rest' || status==='startdrive'){
+    document.getElementById('place-'+status).value='';
+    document.getElementById('reason-'+status).value='';
+    document.getElementById('time-'+status).value='';
+    directionState[status]=null;
+    document.querySelectorAll('#tripDirection-'+status+' button').forEach(b=>b.classList.remove('sel'));
+  }
+}
+
+renderHistory();
+</script>
+</body>
+</html>
