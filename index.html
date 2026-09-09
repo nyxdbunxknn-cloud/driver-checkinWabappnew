@@ -468,6 +468,16 @@
 </head>
 <body>
 
+<div id="confirmOverlay" style="display:none; position:fixed; inset:0; background:rgba(10,22,38,0.55); z-index:999; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:#fff; border-radius:14px; padding:22px 20px; max-width:300px; width:100%; text-align:center;">
+    <p id="confirmMessage" style="font-size:15px; margin:0 0 18px; color:var(--text); line-height:1.5;"></p>
+    <div class="btn-row two">
+      <button class="btn secondary" onclick="confirmResolve(false)">ยกเลิก</button>
+      <button class="btn primary" onclick="confirmResolve(true)">ยืนยัน</button>
+    </div>
+  </div>
+</div>
+
 <div class="login-wrap" id="loginScreen">
   <div class="login-card">
     <div class="logo">🚚</div>
@@ -611,11 +621,11 @@
     <div class="row2">
       <div class="field">
         <label>ทะเบียนหัว</label>
-        <input type="text" id="plateHead" placeholder="เช่น 82-1234">
+        <input type="text" id="plateHead" placeholder="เช่น 70-1234">
       </div>
       <div class="field">
         <label>ทะเบียนหาง</label>
-        <input type="text" id="plateTail" placeholder="เช่น 82-5678">
+        <input type="text" id="plateTail" placeholder="เช่น 70-5678">
       </div>
     </div>
     <div class="field">
@@ -890,8 +900,23 @@ function doLogin(){
   enterApp(emp);
 }
 
-function doLogout(){
-  if(!confirm('ต้องการออกจากระบบหรือไม่?')) return;
+let _confirmResolver = null;
+function showConfirm(msg){
+  return new Promise(resolve=>{
+    _confirmResolver = resolve;
+    document.getElementById('confirmMessage').textContent = msg;
+    document.getElementById('confirmOverlay').style.display='flex';
+  });
+}
+function confirmResolve(val){
+  document.getElementById('confirmOverlay').style.display='none';
+  if(_confirmResolver) _confirmResolver(val);
+  _confirmResolver = null;
+}
+
+async function doLogout(){
+  const ok = await showConfirm('ต้องการออกจากระบบหรือไม่?');
+  if(!ok) return;
   localStorage.removeItem('loggedInDriver');
   document.getElementById('loginId').value='';
   document.getElementById('loginPass').value='';
@@ -1130,8 +1155,9 @@ function renderHistory(){
   }).join('');
 }
 
-function clearHistory(){
-  if(confirm('ต้องการล้างประวัติการเช็คอินทั้งหมดหรือไม่?')){
+async function clearHistory(){
+  const ok = await showConfirm('ต้องการล้างประวัติการเช็คอินทั้งหมดหรือไม่?');
+  if(ok){
     localStorage.removeItem('checkins');
     localStorage.removeItem('lastCheckin');
     renderHistory();
