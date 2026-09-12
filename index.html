@@ -621,11 +621,11 @@
     <div class="row2">
       <div class="field">
         <label>ทะเบียนหัว</label>
-        <input type="text" id="plateHead" placeholder="เช่น 70-1234">
+        <input type="text" id="plateHead" inputmode="tel" placeholder="เช่น 70-1234">
       </div>
       <div class="field">
         <label>ทะเบียนหาง</label>
-        <input type="text" id="plateTail" placeholder="เช่น 70-5678">
+        <input type="text" id="plateTail" inputmode="tel" placeholder="เช่น 70-5678">
       </div>
     </div>
     <div class="field">
@@ -658,6 +658,7 @@
       <div class="status-btn" data-status="parking"><span class="ic">🅿️</span>ถึงลานจอด</div>
       <div class="status-btn" data-status="rest"><span class="ic">🛑</span>จอดพัก</div>
       <div class="status-btn" data-status="startdrive"><span class="ic">🚀</span>เริ่มออกเดินทาง</div>
+      <div class="status-btn" data-status="fuel" style="grid-column:1 / -1;"><span class="ic">⛽</span>เติมน้ำมัน</div>
     </div>
   </div>
 
@@ -700,7 +701,6 @@
       <label>จำนวน (ลิตร/กก.)</label>
       <input type="number" id="qtyWarehouse" placeholder="0">
     </div>
-    <div id="refuel-warehouse"></div>
     <div class="gps-box" id="gps-warehouse">📡 กำลังขอตำแหน่ง GPS...</div>
     <div class="field">
       <label>เลขไมล์ (กม.) — แก้ไขได้</label>
@@ -727,7 +727,6 @@
       <label>จำนวน (ลิตร/กก.)</label>
       <input type="number" id="qtyDestination" placeholder="0">
     </div>
-    <div id="refuel-destination"></div>
     <div class="gps-box" id="gps-destination">📡 กำลังขอตำแหน่ง GPS...</div>
     <div class="field">
       <label>เลขไมล์ (กม.) — แก้ไขได้</label>
@@ -830,6 +829,29 @@
     <div class="btn-row two">
       <button class="btn secondary" onclick="closePanel()">ย้อนกลับ</button>
       <button class="btn primary" onclick="confirmCheckin('startdrive')">ยืนยันเช็คอิน</button>
+    </div>
+  </div>
+
+  <!-- แผงเช็คอิน: เติมน้ำมัน -->
+  <div class="card panel" id="panel-fuel">
+    <h2>⛽ เติมน้ำมัน</h2>
+    <div class="field">
+      <label>สถานที่เติม</label>
+      <select id="fuelLoc">
+        <option value="">— เลือกสถานที่เติม —</option>
+        <option>NT</option>
+        <option>คลองสอง</option>
+        <option>บางจาก</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>จำนวนลิตร</label>
+      <input type="number" id="fuelLiters" placeholder="0">
+    </div>
+    <div class="gps-box" id="gps-fuel">📡 กำลังขอตำแหน่ง GPS...</div>
+    <div class="btn-row two">
+      <button class="btn secondary" onclick="closePanel()">ย้อนกลับ</button>
+      <button class="btn primary" onclick="confirmCheckin('fuel')">ยืนยันเช็คอิน</button>
     </div>
   </div>
 
@@ -959,9 +981,9 @@ fetchEmployees().then(()=>{
 const STATUS_LABEL = {
   depart:'ออกเดินทาง', warehouse:'ถึงคลังรับสินค้า',
   destination:'ถึงสถานที่ปลายทาง', parking:'ถึงลานจอด',
-  rest:'จอดพัก', startdrive:'เริ่มออกเดินทาง'
+  rest:'จอดพัก', startdrive:'เริ่มออกเดินทาง', fuel:'เติมน้ำมัน'
 };
-const STATUS_ICON = { depart:'🚛', warehouse:'🏭', destination:'📍', parking:'🅿️', rest:'🛑', startdrive:'🚀' };
+const STATUS_ICON = { depart:'🚛', warehouse:'🏭', destination:'📍', parking:'🅿️', rest:'🛑', startdrive:'🚀', fuel:'⛽' };
 const REFUEL_LOCATIONS = ['NT','คลองสอง','บางจาก'];
 
 let currentPanel = null;
@@ -991,7 +1013,7 @@ function openPanel(status){
   currentPanel = status;
   document.getElementById('panel-'+status).classList.add('open');
   if(!refuelCounters[status+'']===undefined){} // no-op guard
-  if(['depart','warehouse','destination','parking'].includes(status) && document.getElementById('refuel-'+status).children.length===0){
+  if(['depart','parking'].includes(status) && document.getElementById('refuel-'+status).children.length===0){
     // start with zero rows, user adds via button
     renderRefuelBlock(status);
   }
@@ -1034,8 +1056,9 @@ function requestGps(status){
 }
 
 function suggestMileage(status, lat, lon){
-  const last = loadLast();
   const input = document.getElementById('mileage-'+status);
+  if(!input) return; // สถานะนี้ไม่มีช่องเลขไมล์ (เช่น จอดพัก/เริ่มออกเดินทาง/เติมน้ำมัน)
+  const last = loadLast();
   if(input.value) return; // don't override if user already typed
   if(last && last.gps){
     const dist = haversineKm(last.gps.lat,last.gps.lon,lat,lon);
@@ -1188,13 +1211,11 @@ function confirmCheckin(status){
     entry.place = document.getElementById('placeWarehouse').value || '-';
     entry.received = document.getElementById('chkWarehouse').checked;
     entry.qty = document.getElementById('qtyWarehouse').value || '0';
-    entry.refuels = collectRefuels('warehouse');
   }
   if(status==='destination'){
     entry.place = document.getElementById('placeDestination').value || '-';
     entry.delivered = document.getElementById('chkDestination').checked;
     entry.qty = document.getElementById('qtyDestination').value || '0';
-    entry.refuels = collectRefuels('destination');
   }
   if(status==='parking'){
     const lot = document.getElementById('parkingLot').value;
@@ -1215,6 +1236,13 @@ function confirmCheckin(status){
       entry.time = new Date(timeVal).toLocaleString('th-TH', {dateStyle:'short', timeStyle:'short'});
     }
   }
+  if(status==='fuel'){
+    const loc = document.getElementById('fuelLoc').value;
+    const liters = document.getElementById('fuelLiters').value;
+    if(!loc){ alert('กรุณาเลือกสถานที่เติม'); return; }
+    if(!liters){ alert('กรุณากรอกจำนวนลิตร'); return; }
+    entry.refuels = [{ loc: loc, liters: liters }];
+  }
 
   pushHistory(entry);
   if(mileage!==null) saveLast({mileage, gps});
@@ -1234,7 +1262,6 @@ function resetPanelFields(status){
     document.getElementById('checkWarehouse').classList.remove('checked');
     document.getElementById('qtyWarehouse').value='';
     document.getElementById('mileage-warehouse').value='';
-    document.getElementById('refuel-rows-warehouse') && (document.getElementById('refuel-rows-warehouse').innerHTML='');
   }
   if(status==='destination'){
     document.getElementById('placeDestination').value='';
@@ -1242,7 +1269,6 @@ function resetPanelFields(status){
     document.getElementById('checkDestination').classList.remove('checked');
     document.getElementById('qtyDestination').value='';
     document.getElementById('mileage-destination').value='';
-    document.getElementById('refuel-rows-destination') && (document.getElementById('refuel-rows-destination').innerHTML='');
   }
   if(status==='parking'){
     document.getElementById('parkingLot').value='';
@@ -1255,6 +1281,10 @@ function resetPanelFields(status){
     document.getElementById('time-'+status).value='';
     directionState[status]=null;
     document.querySelectorAll('#tripDirection-'+status+' button').forEach(b=>b.classList.remove('sel'));
+  }
+  if(status==='fuel'){
+    document.getElementById('fuelLoc').value='';
+    document.getElementById('fuelLiters').value='';
   }
 }
 
