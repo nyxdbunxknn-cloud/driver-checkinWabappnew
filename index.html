@@ -621,11 +621,11 @@
     <div class="row2">
       <div class="field">
         <label>ทะเบียนหัว</label>
-        <input type="text" id="plateHead" placeholder="เช่น 82-1234">
+        <input type="text" id="plateHead" placeholder="เช่น 70-1234">
       </div>
       <div class="field">
         <label>ทะเบียนหาง</label>
-        <input type="text" id="plateTail" placeholder="เช่น 82-5678">
+        <input type="text" id="plateTail" placeholder="เช่น 70-5678">
       </div>
     </div>
     <div class="field">
@@ -848,7 +848,7 @@
 <script>
 // ==== ตั้งค่าการเชื่อมต่อ Google Sheet ====
 // วาง URL ของ Google Apps Script Web App ที่ deploy แล้วตรงนี้ (ดูวิธีทำใน README)
-const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbzrrNhT0MG2V6KKDoSdaLROFnb3dsZm1X4n533IBbcnW7kUeMi1fkrezzU3FNB9AyGQtQ/exec';
+const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxvlQ-jZPlmMwA0Zno17mrFRQ48Y2NjW7_2B0ITymEQv_tMBTGXdoc24ktFWUxMfaNg/exec';
 
 // รายชื่อพนักงานสำรอง กรณียังไม่ได้ตั้งค่า SHEET_WEBHOOK_URL หรือดึงจากชีทไม่สำเร็จ
 // (แนะนำให้ดูแลรายชื่อผ่านแท็บ "Drivers" ใน Google Sheet แทนการแก้ตรงนี้)
@@ -946,8 +946,13 @@ function enterApp(emp){
 fetchEmployees().then(()=>{
   const saved = JSON.parse(localStorage.getItem('loggedInDriver')||'null');
   if(saved){
-    const emp = EMPLOYEES.find(e=>e.id===saved.id) || saved;
-    enterApp(emp);
+    const emp = EMPLOYEES.find(e=>e.id===saved.id);
+    if(emp){
+      enterApp(emp);
+    } else {
+      // ไม่พบรหัสนี้ในรายชื่อปัจจุบันแล้ว (อาจถูกลบออกจากแท็บ Drivers) — บังคับออกจากระบบ
+      localStorage.removeItem('loggedInDriver');
+    }
   }
 });
 
