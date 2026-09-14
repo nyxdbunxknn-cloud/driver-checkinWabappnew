@@ -51,6 +51,7 @@
     background:var(--orange);
     opacity:0.15;
     border-radius:50%;
+    pointer-events:none;
   }
   header .eyebrow{
     font-size:13px;
@@ -621,11 +622,11 @@
     <div class="row2">
       <div class="field">
         <label>ทะเบียนหัว</label>
-        <input type="text" id="plateHead" inputmode="tel" placeholder="เช่น 70-1234">
+        <input type="text" id="plateHead" placeholder="เช่น 70-1234">
       </div>
       <div class="field">
         <label>ทะเบียนหาง</label>
-        <input type="text" id="plateTail" inputmode="tel" placeholder="เช่น 70-5678">
+        <input type="text" id="plateTail" placeholder="เช่น 70-5678">
       </div>
     </div>
     <div class="field">
@@ -870,7 +871,7 @@
 <script>
 // ==== ตั้งค่าการเชื่อมต่อ Google Sheet ====
 // วาง URL ของ Google Apps Script Web App ที่ deploy แล้วตรงนี้ (ดูวิธีทำใน README)
-const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxvlQ-jZPlmMwA0Zno17mrFRQ48Y2NjW7_2B0ITymEQv_tMBTGXdoc24ktFWUxMfaNg/exec';
+const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbzHc2aUhI66q8JjcvMxF9JbTVAgC1D1GzzDkIHPtII/dev';
 
 // รายชื่อพนักงานสำรอง กรณียังไม่ได้ตั้งค่า SHEET_WEBHOOK_URL หรือดึงจากชีทไม่สำเร็จ
 // (แนะนำให้ดูแลรายชื่อผ่านแท็บ "Drivers" ใน Google Sheet แทนการแก้ตรงนี้)
@@ -1182,7 +1183,7 @@ function renderHistory(){
       '</div>';
   }).join('');
 }
-
+ 
 async function clearHistory(){
   const ok = await showConfirm('ต้องการล้างประวัติการเช็คอินของตัวเองทั้งหมดหรือไม่?');
   if(ok){
