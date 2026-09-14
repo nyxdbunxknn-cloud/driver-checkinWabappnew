@@ -334,6 +334,11 @@
     margin:0 0 18px;
   }
   .login-card .field{ text-align:left; }
+  .login-card .field input{
+    padding:15px 14px;
+    font-size:17px;
+    border-radius:12px;
+  }
   .login-error{
     color:#c23b3b;
     font-size:13px;
@@ -1009,6 +1014,13 @@ document.querySelectorAll('.status-btn').forEach(btn=>{
 });
 
 function openPanel(status){
+  const plateHead = document.getElementById('plateHead').value.trim();
+  const product = document.getElementById('productType').value;
+  if(!plateHead || !product){
+    alert('กรุณากรอกทะเบียนหัว และเลือกประเภทสินค้า ในการ์ด "ข้อมูลเที่ยวรถ" ก่อนกดเช็คอิน');
+    document.getElementById('driverName').closest('.card').scrollIntoView({behavior:'smooth', block:'start'});
+    return;
+  }
   if(currentPanel) document.getElementById('panel-'+currentPanel).classList.remove('open');
   document.querySelectorAll('.status-btn').forEach(b=>b.classList.toggle('active', b.dataset.status===status));
   currentPanel = status;
@@ -1183,7 +1195,7 @@ function renderHistory(){
       '</div>';
   }).join('');
 }
- 
+
 async function clearHistory(){
   const ok = await showConfirm('ต้องการล้างประวัติการเช็คอินของตัวเองทั้งหมดหรือไม่?');
   if(ok){
