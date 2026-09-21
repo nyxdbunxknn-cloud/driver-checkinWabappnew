@@ -524,20 +524,6 @@
         <span class="m-ic">📍</span>
         <span class="m-txt"><strong>เช็คอิน</strong><span>แจ้งสถานะการเดินทางวันนี้</span></span>
       </button>
-      <div class="menu-grid">
-        <button class="menu-secondary" onclick="showScreen('placeholder-schedule')">
-          <span class="soon-badge">เร็วๆ นี้</span>
-          <span class="m-ic">🗓️</span>
-          <strong>ตารางงาน</strong>
-          <span class="sub">ดูคิวเที่ยววิ่ง</span>
-        </button>
-        <button class="menu-secondary" onclick="showScreen('placeholder-payslip')">
-          <span class="soon-badge">เร็วๆ นี้</span>
-          <span class="m-ic">💰</span>
-          <strong>สลิปเงินเดือน</strong>
-          <span class="sub">ดูย้อนหลังได้</span>
-        </button>
-      </div>
       <button class="menu-row" onclick="showScreen('placeholder-emergency')">
         <span class="m-ic" style="font-size:18px;">📞</span>
         <strong>ติดต่อฉุกเฉิน</strong>
@@ -547,40 +533,6 @@
 </div>
 
 <!-- หน้าว่างสำหรับฟีเจอร์ที่ยังไม่เปิดใช้งาน -->
-<div id="placeholder-schedule" style="display:none;">
-  <header>
-    <div class="wrap">
-      <button class="back-link" onclick="showScreen('homeMenu')" style="color:#fff;">‹ กลับ</button>
-      <h1 style="margin-top:10px;">🗓️ ตารางงาน</h1>
-    </div>
-  </header>
-  <div class="wrap">
-    <div class="card">
-      <div class="placeholder-box">
-        <span class="p-ic">🛠️</span>
-        ฟีเจอร์นี้ยังไม่เปิดใช้งาน<br>อยู่ระหว่างการพัฒนา เร็วๆ นี้
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="placeholder-payslip" style="display:none;">
-  <header>
-    <div class="wrap">
-      <button class="back-link" onclick="showScreen('homeMenu')" style="color:#fff;">‹ กลับ</button>
-      <h1 style="margin-top:10px;">💰 สลิปเงินเดือน</h1>
-    </div>
-  </header>
-  <div class="wrap">
-    <div class="card">
-      <div class="placeholder-box">
-        <span class="p-ic">🛠️</span>
-        ฟีเจอร์นี้ยังไม่เปิดใช้งาน<br>อยู่ระหว่างการพัฒนา เร็วๆ นี้
-      </div>
-    </div>
-  </div>
-</div>
-
 <div id="placeholder-emergency" style="display:none;">
   <header>
     <div class="wrap">
@@ -651,6 +603,28 @@
       <label>เลขไมล์ปัจจุบัน (กม.)</label>
       <input type="number" id="mileageBase" placeholder="0">
       <div class="hint">ครั้งต่อไประบบจะแนะนำเลขไมล์ให้อัตโนมัติจากระยะทาง GPS</div>
+    </div>
+  </div>
+
+  <!-- คนขับร่วม -->
+  <div class="card">
+    <h2>👥 คนขับ</h2>
+    <div class="toggle2" id="driveMode">
+      <button type="button" data-mode="solo" class="sel" onclick="selectDriveMode('solo')">ขับคนเดียว</button>
+      <button type="button" data-mode="pair" onclick="selectDriveMode('pair')">ขับคู่</button>
+    </div>
+    <div id="coDriverFields" style="display:none;">
+      <div class="field">
+        <label>ชื่อคนขับร่วม</label>
+        <input type="text" id="coDriverName" placeholder="พิมพ์ชื่อคนที่ไปด้วย">
+      </div>
+      <div class="field">
+        <label>คนขับร่วมขับขาไปหรือขากลับ</label>
+        <div class="toggle2" id="coDriverLeg">
+          <button type="button" data-leg="ไป" onclick="selectCoDriverLeg('ไป')">ขาไป</button>
+          <button type="button" data-leg="กลับ" onclick="selectCoDriverLeg('กลับ')">ขากลับ</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -876,7 +850,7 @@
 <script>
 // ==== ตั้งค่าการเชื่อมต่อ Google Sheet ====
 // วาง URL ของ Google Apps Script Web App ที่ deploy แล้วตรงนี้ (ดูวิธีทำใน README)
-const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyfqot78u8u7uHEDhG2Jk_VzonoKY8paBYvsFm_B5Vp5B-YkZKkxuKOTKvvvZNo4qS-/exec';
+const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbz_lANaGcFiVmbunzY_fCGA-vHwUZjRINWWCYs84C1AqOad8bEneyt52G7M1CLvxknO/exec';
 
 // รายชื่อพนักงานสำรอง กรณียังไม่ได้ตั้งค่า SHEET_WEBHOOK_URL หรือดึงจากชีทไม่สำเร็จ
 // (แนะนำให้ดูแลรายชื่อผ่านแท็บ "Drivers" ใน Google Sheet แทนการแก้ตรงนี้)
@@ -951,7 +925,7 @@ async function doLogout(){
   showScreen('loginScreen');
 }
 
-const ALL_SCREENS = ['loginScreen','homeMenu','mainApp','placeholder-schedule','placeholder-payslip','placeholder-emergency'];
+const ALL_SCREENS = ['loginScreen','homeMenu','mainApp','placeholder-emergency'];
 function showScreen(id){
   ALL_SCREENS.forEach(s=>{
     const el = document.getElementById(s);
@@ -962,6 +936,18 @@ function showScreen(id){
 }
 
 let currentDriverId = '';
+let driveMode = 'solo';
+let coDriverLeg = null;
+
+function selectDriveMode(mode){
+  driveMode = mode;
+  document.querySelectorAll('#driveMode button').forEach(b=>b.classList.toggle('sel', b.dataset.mode===mode));
+  document.getElementById('coDriverFields').style.display = (mode==='pair') ? 'block' : 'none';
+}
+function selectCoDriverLeg(leg){
+  coDriverLeg = leg;
+  document.querySelectorAll('#coDriverLeg button').forEach(b=>b.classList.toggle('sel', b.dataset.leg===leg));
+}
 function enterApp(emp){
   currentDriverId = emp.id;
   document.getElementById('driverName').value = emp.name;
@@ -1139,7 +1125,10 @@ function tripSnapshot(){
     driver: document.getElementById('driverName').value || '-',
     head: document.getElementById('plateHead').value || '-',
     tail: document.getElementById('plateTail').value || '-',
-    product: document.getElementById('productType').value || '-'
+    product: document.getElementById('productType').value || '-',
+    driveMode: driveMode,
+    coDriverName: driveMode==='pair' ? (document.getElementById('coDriverName').value || '-') : '',
+    coDriverLeg: driveMode==='pair' ? (coDriverLeg || '-') : ''
   };
 }
 
@@ -1167,6 +1156,9 @@ function renderHistory(){
   if(list.length===0){ el.innerHTML='<div class="empty">ยังไม่มีการเช็คอิน</div>'; return; }
   el.innerHTML = list.map(item=>{
     let lines = [];
+    if(item.driveMode==='pair' && item.coDriverName){
+      lines.push('👥 ขับคู่กับ: '+item.coDriverName+' (ขับขา'+item.coDriverLeg+')');
+    }
     if(item.status==='depart') lines.push('ต้นทาง: '+item.origin);
     if(item.status==='warehouse'){
       lines.push('สถานที่: '+item.place);
