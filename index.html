@@ -754,7 +754,12 @@
     </div>
     <div class="field">
       <label>สถานที่จอด</label>
-      <input type="text" id="place-rest" placeholder="พิมพ์ชื่อสถานที่จอด">
+      <select id="place-rest">
+        <option value="">— เลือกสถานที่จอด —</option>
+        <option>NT</option>
+        <option>ลานจอดพระประแดง</option>
+        <option>คลองสอง</option>
+      </select>
     </div>
     <div class="field">
       <label>สาเหตุที่จอด</label>
@@ -771,6 +776,7 @@
       <label>เวลา</label>
       <input type="datetime-local" id="time-rest">
     </div>
+    <div class="gps-box" id="gps-rest">📡 กำลังขอตำแหน่ง GPS...</div>
     <div class="btn-row two">
       <button class="btn secondary" onclick="closePanel()">ย้อนกลับ</button>
       <button class="btn primary" onclick="confirmCheckin('rest')">ยืนยันเช็คอิน</button>
@@ -789,7 +795,12 @@
     </div>
     <div class="field">
       <label>สถานที่จอด</label>
-      <input type="text" id="place-startdrive" placeholder="พิมพ์ชื่อสถานที่จอด (จุดที่ออกเดินทาง)">
+      <select id="place-startdrive">
+        <option value="">— เลือกสถานที่จอด —</option>
+        <option>NT</option>
+        <option>ลานจอดพระประแดง</option>
+        <option>คลองสอง</option>
+      </select>
     </div>
     <div class="field">
       <label>สาเหตุที่จอด</label>
@@ -806,6 +817,7 @@
       <label>เวลา</label>
       <input type="datetime-local" id="time-startdrive">
     </div>
+    <div class="gps-box" id="gps-startdrive">📡 กำลังขอตำแหน่ง GPS...</div>
     <div class="btn-row two">
       <button class="btn secondary" onclick="closePanel()">ย้อนกลับ</button>
       <button class="btn primary" onclick="confirmCheckin('startdrive')">ยืนยันเช็คอิน</button>
@@ -850,7 +862,7 @@
 <script>
 // ==== ตั้งค่าการเชื่อมต่อ Google Sheet ====
 // วาง URL ของ Google Apps Script Web App ที่ deploy แล้วตรงนี้ (ดูวิธีทำใน README)
-const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwUl7u9ZNeGnvG60JddpIG5yOW9vSaFZ1FagEzs-4P3u0SVnLdISaGbj2SbQOQur7lF/exec';
+const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyknKZqIfz0kkO4bCNLlQOW32EUUJSCc13p6BC8Vc6Mpr17cpGqeNgOi_zLYucr2BJE/exec';
 
 // รายชื่อพนักงานสำรอง กรณียังไม่ได้ตั้งค่า SHEET_WEBHOOK_URL หรือดึงจากชีทไม่สำเร็จ
 // (แนะนำให้ดูแลรายชื่อผ่านแท็บ "Drivers" ใน Google Sheet แทนการแก้ตรงนี้)
@@ -1006,6 +1018,14 @@ function openPanel(status){
     alert('กรุณากรอกทะเบียนหัว และเลือกประเภทสินค้า ในการ์ด "ข้อมูลเที่ยวรถ" ก่อนกดเช็คอิน');
     document.getElementById('driverName').closest('.card').scrollIntoView({behavior:'smooth', block:'start'});
     return;
+  }
+  if(driveMode==='pair'){
+    const coName = document.getElementById('coDriverName').value.trim();
+    if(!coName || !coDriverLeg){
+      alert('กรุณากรอกชื่อคนขับร่วม และเลือกว่าคนขับร่วมขับขาไปหรือขากลับ ในการ์ด "คนขับ" ก่อนกดเช็คอิน');
+      document.getElementById('coDriverFields').closest('.card').scrollIntoView({behavior:'smooth', block:'start'});
+      return;
+    }
   }
   if(currentPanel) document.getElementById('panel-'+currentPanel).classList.remove('open');
   document.querySelectorAll('.status-btn').forEach(b=>b.classList.toggle('active', b.dataset.status===status));
