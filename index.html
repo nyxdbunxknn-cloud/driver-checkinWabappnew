@@ -817,7 +817,7 @@
     <h2>⛽ เติมน้ำมัน</h2>
     <div class="field">
       <label>สถานที่เติม</label>
-      <select id="fuelLoc">
+      <select id="fuelLoc" onchange="document.getElementById('fuelLiters').disabled = !this.value; if(!this.value) document.getElementById('fuelLiters').value='';">
         <option value="">— เลือกสถานที่เติม —</option>
         <option>NT</option>
         <option>คลองสอง</option>
@@ -826,7 +826,7 @@
     </div>
     <div class="field">
       <label>จำนวนลิตร</label>
-      <input type="number" id="fuelLiters" placeholder="0">
+      <input type="number" id="fuelLiters" placeholder="เลือกสถานที่เติมก่อน" disabled>
     </div>
     <div class="gps-box" id="gps-fuel">📡 กำลังขอตำแหน่ง GPS...</div>
     <div class="btn-row two">
@@ -850,7 +850,7 @@
 <script>
 // ==== ตั้งค่าการเชื่อมต่อ Google Sheet ====
 // วาง URL ของ Google Apps Script Web App ที่ deploy แล้วตรงนี้ (ดูวิธีทำใน README)
-const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxDmZSuxqwFfxB-s-Zx-jOKGEI7naV0PPYePLPmyl07QDf8rE6MZwHiGDllCiAbSLyj/exec';
+const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwUl7u9ZNeGnvG60JddpIG5yOW9vSaFZ1FagEzs-4P3u0SVnLdISaGbj2SbQOQur7lF/exec';
 
 // รายชื่อพนักงานสำรอง กรณียังไม่ได้ตั้งค่า SHEET_WEBHOOK_URL หรือดึงจากชีทไม่สำเร็จ
 // (แนะนำให้ดูแลรายชื่อผ่านแท็บ "Drivers" ใน Google Sheet แทนการแก้ตรงนี้)
@@ -1087,8 +1087,8 @@ function addRefuelRow(status){
   row.id=id;
   const opts = REFUEL_LOCATIONS.map(l=>'<option>'+l+'</option>').join('');
   row.innerHTML =
-    '<select data-role="loc"><option value="">สถานที่เติม</option>'+opts+'</select>'+
-    '<input type="number" data-role="liters" placeholder="จำนวนลิตร">'+
+    '<select data-role="loc" onchange="this.nextElementSibling.disabled=!this.value; if(!this.value) this.nextElementSibling.value=\'\';"><option value="">สถานที่เติม</option>'+opts+'</select>'+
+    '<input type="number" data-role="liters" placeholder="จำนวนลิตร" disabled>'+
     '<button type="button" class="rm-btn" onclick="document.getElementById(\''+id+'\').remove()">×</button>';
   rowsEl.appendChild(row);
 }
@@ -1231,11 +1231,13 @@ function confirmCheckin(status){
   if(status==='rest' || status==='startdrive'){
     const dir = directionState[status];
     const place = document.getElementById('place-'+status).value;
+    const reason = document.getElementById('reason-'+status).value;
     if(!dir){ alert('กรุณาเลือกขาไปหรือขากลับ'); return; }
     if(!place){ alert('กรุณาพิมพ์สถานที่จอด'); return; }
+    if(!reason){ alert('กรุณาเลือกสาเหตุที่จอด'); return; }
     entry.direction = dir;
     entry.place = place;
-    entry.reason = document.getElementById('reason-'+status).value;
+    entry.reason = reason;
     const timeVal = document.getElementById('time-'+status).value;
     if(timeVal){
       entry.time = new Date(timeVal).toLocaleString('th-TH', {dateStyle:'short', timeStyle:'short'});
@@ -1290,6 +1292,7 @@ function resetPanelFields(status){
   if(status==='fuel'){
     document.getElementById('fuelLoc').value='';
     document.getElementById('fuelLiters').value='';
+    document.getElementById('fuelLiters').disabled=true;
   }
 }
 
