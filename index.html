@@ -862,7 +862,7 @@
 <script>
 // ==== ตั้งค่าการเชื่อมต่อ Google Sheet ====
 // วาง URL ของ Google Apps Script Web App ที่ deploy แล้วตรงนี้ (ดูวิธีทำใน README)
-const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyknKZqIfz0kkO4bCNLlQOW32EUUJSCc13p6BC8Vc6Mpr17cpGqeNgOi_zLYucr2BJE/exec';
+const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbzuiWqndrZAbcT55c7cAHmPlHEZGVZpi0U1n7LVsCI_PukSj71INWlLMTY0Zwi7W7Zk/exec';
 
 // รายชื่อพนักงานสำรอง กรณียังไม่ได้ตั้งค่า SHEET_WEBHOOK_URL หรือดึงจากชีทไม่สำเร็จ
 // (แนะนำให้ดูแลรายชื่อผ่านแท็บ "Drivers" ใน Google Sheet แทนการแก้ตรงนี้)
@@ -1233,14 +1233,26 @@ function confirmCheckin(status){
     entry.refuels = collectRefuels('depart');
   }
   if(status==='warehouse'){
-    entry.place = document.getElementById('placeWarehouse').value || '-';
-    entry.received = document.getElementById('chkWarehouse').checked;
-    entry.qty = document.getElementById('qtyWarehouse').value || '0';
+    const place = document.getElementById('placeWarehouse').value.trim();
+    const received = document.getElementById('chkWarehouse').checked;
+    const qty = document.getElementById('qtyWarehouse').value;
+    if(!place){ alert('กรุณาพิมพ์ชื่อสถานที่'); return; }
+    if(!received){ alert('กรุณากดติ๊ก "รับสินค้าครบตามจำนวน"'); return; }
+    if(!qty || parseFloat(qty)<=0){ alert('กรุณาพิมพ์จำนวน (ลิตร/กก.)'); return; }
+    entry.place = place;
+    entry.received = received;
+    entry.qty = qty;
   }
   if(status==='destination'){
-    entry.place = document.getElementById('placeDestination').value || '-';
-    entry.delivered = document.getElementById('chkDestination').checked;
-    entry.qty = document.getElementById('qtyDestination').value || '0';
+    const place = document.getElementById('placeDestination').value.trim();
+    const delivered = document.getElementById('chkDestination').checked;
+    const qty = document.getElementById('qtyDestination').value;
+    if(!place){ alert('กรุณาพิมพ์ชื่อสถานที่'); return; }
+    if(!delivered){ alert('กรุณากดติ๊ก "ส่งสินค้าตามจำนวน"'); return; }
+    if(!qty || parseFloat(qty)<=0){ alert('กรุณาพิมพ์จำนวน (ลิตร/กก.)'); return; }
+    entry.place = place;
+    entry.delivered = delivered;
+    entry.qty = qty;
   }
   if(status==='parking'){
     const lot = document.getElementById('parkingLot').value;
