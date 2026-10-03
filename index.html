@@ -583,7 +583,7 @@
       </div>
       <div class="field">
         <label>ทะเบียนหาง</label>
-        <input type="text" id="plateTail" placeholder="เช่น 70-5678">
+        <input type="text" id="plateTail" placeholder="เช่น 71-5678">
       </div>
     </div>
     <div class="field">
@@ -754,12 +754,7 @@
     </div>
     <div class="field">
       <label>สถานที่จอด</label>
-      <select id="place-rest">
-        <option value="">— เลือกสถานที่จอด —</option>
-        <option>NT</option>
-        <option>ลานจอดพระประแดง</option>
-        <option>คลองสอง</option>
-      </select>
+      <input type="text" id="place-rest" placeholder="พิมพ์ชื่อสถานที่จอด">
     </div>
     <div class="field">
       <label>สาเหตุที่จอด</label>
@@ -795,12 +790,7 @@
     </div>
     <div class="field">
       <label>สถานที่จอด</label>
-      <select id="place-startdrive">
-        <option value="">— เลือกสถานที่จอด —</option>
-        <option>NT</option>
-        <option>ลานจอดพระประแดง</option>
-        <option>คลองสอง</option>
-      </select>
+      <input type="text" id="place-startdrive" placeholder="พิมพ์ชื่อสถานที่จอด (จุดที่ออกเดินทาง)">
     </div>
     <div class="field">
       <label>สาเหตุที่จอด</label>
@@ -862,7 +852,7 @@
 <script>
 // ==== ตั้งค่าการเชื่อมต่อ Google Sheet ====
 // วาง URL ของ Google Apps Script Web App ที่ deploy แล้วตรงนี้ (ดูวิธีทำใน README)
-const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbzuiWqndrZAbcT55c7cAHmPlHEZGVZpi0U1n7LVsCI_PukSj71INWlLMTY0Zwi7W7Zk/exec';
+const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycby2EQwPhHw4u9Ol7PRNmiDjYOytyVvPxgiL8X5IbvS76-_mQODa1Rz3QmrRe69MhRnA/exec';
 
 // รายชื่อพนักงานสำรอง กรณียังไม่ได้ตั้งค่า SHEET_WEBHOOK_URL หรือดึงจากชีทไม่สำเร็จ
 // (แนะนำให้ดูแลรายชื่อผ่านแท็บ "Drivers" ใน Google Sheet แทนการแก้ตรงนี้)
