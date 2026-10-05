@@ -231,6 +231,8 @@
     border-color:var(--navy);
     color:#fff;
   }
+  .toggle3{ grid-template-columns:1fr 1fr 1fr; gap:6px; }
+  .toggle3 button{ font-size:13px; padding:9px 3px; line-height:1.3; }
   .gps-box{
     background:#f6f7fb;
     border:1.5px solid var(--line);
@@ -611,18 +613,20 @@
     <h2>👥 คนขับ</h2>
     <div class="toggle2" id="driveMode">
       <button type="button" data-mode="solo" class="sel" onclick="selectDriveMode('solo')">ขับคนเดียว</button>
-      <button type="button" data-mode="pair" onclick="selectDriveMode('pair')">ขับคู่</button>
+      <button type="button" data-mode="pair" onclick="selectDriveMode('pair')">มีคนไปด้วย</button>
     </div>
     <div id="coDriverFields" style="display:none;">
       <div class="field">
-        <label>ชื่อคนขับร่วม</label>
+        <label>ชื่อคนที่ไปด้วย</label>
         <input type="text" id="coDriverName" placeholder="พิมพ์ชื่อคนที่ไปด้วย">
       </div>
       <div class="field">
-        <label>คนขับร่วมขับขาไปหรือขากลับ</label>
+        <label>สถานะของคนขับร่วม</label>
         <div class="toggle2" id="coDriverLeg">
-          <button type="button" data-leg="ไป" onclick="selectCoDriverLeg('ไป')">ขาไป</button>
-          <button type="button" data-leg="กลับ" onclick="selectCoDriverLeg('กลับ')">ขากลับ</button>
+          <button type="button" data-leg="ไป" onclick="selectCoDriverLeg('ไป')">ขับขาไป</button>
+          <button type="button" data-leg="กลับ" onclick="selectCoDriverLeg('กลับ')">ขับขากลับ</button>
+          <button type="button" data-leg="ยังไม่ขับ" onclick="selectCoDriverLeg('ยังไม่ขับ')">ยังไม่ได้ขับ</button>
+          <button type="button" data-leg="ไม่ขับ" onclick="selectCoDriverLeg('ไม่ขับ')">ไม่ได้ขับ (ไปดูงาน)</button>
         </div>
       </div>
     </div>
@@ -852,7 +856,7 @@
 <script>
 // ==== ตั้งค่าการเชื่อมต่อ Google Sheet ====
 // วาง URL ของ Google Apps Script Web App ที่ deploy แล้วตรงนี้ (ดูวิธีทำใน README)
-const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycby2EQwPhHw4u9Ol7PRNmiDjYOytyVvPxgiL8X5IbvS76-_mQODa1Rz3QmrRe69MhRnA/exec';
+const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwkoq-R4RewFz2Kb7zvgn70YXRS9CvwBbZZ5ahN3l1AnxGqRffFPfY8DH0hu57r6c7O/exec';
 
 // รายชื่อพนักงานสำรอง กรณียังไม่ได้ตั้งค่า SHEET_WEBHOOK_URL หรือดึงจากชีทไม่สำเร็จ
 // (แนะนำให้ดูแลรายชื่อผ่านแท็บ "Drivers" ใน Google Sheet แทนการแก้ตรงนี้)
@@ -1012,7 +1016,7 @@ function openPanel(status){
   if(driveMode==='pair'){
     const coName = document.getElementById('coDriverName').value.trim();
     if(!coName || !coDriverLeg){
-      alert('กรุณากรอกชื่อคนขับร่วม และเลือกว่าคนขับร่วมขับขาไปหรือขากลับ ในการ์ด "คนขับ" ก่อนกดเช็คอิน');
+      alert('กรุณากรอกชื่อคนที่ไปด้วย และเลือกบทบาทของคนนั้น ในการ์ด "คนขับ" ก่อนกดเช็คอิน');
       document.getElementById('coDriverFields').closest('.card').scrollIntoView({behavior:'smooth', block:'start'});
       return;
     }
@@ -1167,7 +1171,11 @@ function renderHistory(){
   el.innerHTML = list.map(item=>{
     let lines = [];
     if(item.driveMode==='pair' && item.coDriverName){
-      lines.push('👥 ขับคู่กับ: '+item.coDriverName+' (ขับขา'+item.coDriverLeg+')');
+      let roleText;
+      if(item.coDriverLeg==='ไม่ขับ') roleText = 'ไปด้วย ไม่ได้ขับ (ดูงาน)';
+      else if(item.coDriverLeg==='ยังไม่ขับ') roleText = 'ยังไม่ได้ขับ';
+      else roleText = 'ขับขา'+item.coDriverLeg;
+      lines.push('👥 '+item.coDriverName+' — '+roleText);
     }
     if(item.status==='depart') lines.push('ต้นทาง: '+item.origin);
     if(item.status==='warehouse'){
