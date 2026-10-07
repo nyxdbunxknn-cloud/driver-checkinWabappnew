@@ -585,7 +585,7 @@
       </div>
       <div class="field">
         <label>ทะเบียนหาง</label>
-        <input type="text" id="plateTail" placeholder="เช่น 71-5678">
+        <input type="text" id="plateTail" placeholder="เช่น 70-5678">
       </div>
     </div>
     <div class="field">
@@ -612,16 +612,16 @@
   <div class="card">
     <h2>👥 คนขับ</h2>
     <div class="toggle2" id="driveMode">
-      <button type="button" data-mode="solo" class="sel" onclick="selectDriveMode('solo')">ขับคนเดียว</button>
-      <button type="button" data-mode="pair" onclick="selectDriveMode('pair')">มีคนไปด้วย</button>
+      <button type="button" data-mode="solo" onclick="selectDriveMode('solo')">ขับคนเดียว</button>
+      <button type="button" data-mode="pair" onclick="selectDriveMode('pair')">ขับคู่</button>
     </div>
     <div id="coDriverFields" style="display:none;">
       <div class="field">
-        <label>ชื่อคนที่ไปด้วย</label>
-        <input type="text" id="coDriverName" placeholder="พิมพ์ชื่อคนที่ไปด้วย">
+        <label>ชื่อ-นามสกุล พขร.ที่ขับคู่</label>
+        <input type="text" id="coDriverName" placeholder="พิมพ์ชื่อ-นามสกุล พขร.ที่ขับคู่">
       </div>
       <div class="field">
-        <label>สถานะของคนขับร่วม</label>
+        <label>สถานะของพขร.ที่ขับร่วม</label>
         <div class="toggle2" id="coDriverLeg">
           <button type="button" data-leg="ไป" onclick="selectCoDriverLeg('ไป')">ขับขาไป</button>
           <button type="button" data-leg="กลับ" onclick="selectCoDriverLeg('กลับ')">ขับขากลับ</button>
@@ -856,7 +856,7 @@
 <script>
 // ==== ตั้งค่าการเชื่อมต่อ Google Sheet ====
 // วาง URL ของ Google Apps Script Web App ที่ deploy แล้วตรงนี้ (ดูวิธีทำใน README)
-const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwkoq-R4RewFz2Kb7zvgn70YXRS9CvwBbZZ5ahN3l1AnxGqRffFPfY8DH0hu57r6c7O/exec';
+const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbzuN90wCafp5klwE4n0WUpiZ7AvbIjR9KdKhcUaWwhUWRgXVHXPMfNEzGosr2OFivdU/exec';
 
 // รายชื่อพนักงานสำรอง กรณียังไม่ได้ตั้งค่า SHEET_WEBHOOK_URL หรือดึงจากชีทไม่สำเร็จ
 // (แนะนำให้ดูแลรายชื่อผ่านแท็บ "Drivers" ใน Google Sheet แทนการแก้ตรงนี้)
@@ -942,7 +942,7 @@ function showScreen(id){
 }
 
 let currentDriverId = '';
-let driveMode = 'solo';
+let driveMode = null;
 let coDriverLeg = null;
 
 function selectDriveMode(mode){
@@ -1013,10 +1013,15 @@ function openPanel(status){
     document.getElementById('driverName').closest('.card').scrollIntoView({behavior:'smooth', block:'start'});
     return;
   }
+  if(!driveMode){
+    alert('กรุณาเลือกว่าขับคนเดียวหรือขับคู่ ในการ์ด "คนขับ" ก่อนกดเช็คอิน');
+    document.getElementById('driveMode').closest('.card').scrollIntoView({behavior:'smooth', block:'start'});
+    return;
+  }
   if(driveMode==='pair'){
     const coName = document.getElementById('coDriverName').value.trim();
     if(!coName || !coDriverLeg){
-      alert('กรุณากรอกชื่อคนที่ไปด้วย และเลือกบทบาทของคนนั้น ในการ์ด "คนขับ" ก่อนกดเช็คอิน');
+      alert('กรุณากรอกชื่อ-นามสกุล พขร.ที่ขับคู่ และเลือกสถานะของพขร.ที่ขับร่วม ในการ์ด "คนขับ" ก่อนกดเช็คอิน');
       document.getElementById('coDriverFields').closest('.card').scrollIntoView({behavior:'smooth', block:'start'});
       return;
     }
