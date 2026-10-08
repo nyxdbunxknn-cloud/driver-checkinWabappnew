@@ -106,7 +106,18 @@
     background:#fbfbfa;
     color:var(--text);
   }
-  .field input:focus,.field select:focus{
+  .field textarea{
+    width:100%;
+    padding:11px 12px;
+    border-radius:10px;
+    border:1.5px solid var(--line);
+    font-size:15px;
+    font-family:inherit;
+    background:#fbfbfa;
+    color:var(--text);
+    resize:vertical;
+  }
+  .field input:focus,.field select:focus,.field textarea:focus{
     outline:2px solid var(--orange);
     outline-offset:1px;
     background:#fff;
@@ -585,7 +596,7 @@
       </div>
       <div class="field">
         <label>ทะเบียนหาง</label>
-        <input type="text" id="plateTail" placeholder="เช่น 70-5678">
+        <input type="text" id="plateTail" placeholder="เช่น 71-5678">
       </div>
     </div>
     <div class="field">
@@ -664,6 +675,10 @@
       <label>เลขไมล์ (กม.) — แก้ไขได้</label>
       <input type="number" id="mileage-depart" placeholder="0">
     </div>
+    <div class="field">
+      <label>หมายเหตุ (ไม่บังคับ)</label>
+      <textarea id="note-depart" rows="2" placeholder="พิมพ์หมายเหตุ (ถ้ามี)"></textarea>
+    </div>
     <div class="btn-row two">
       <button class="btn secondary" onclick="closePanel()">ย้อนกลับ</button>
       <button class="btn primary" onclick="confirmCheckin('depart')">ยืนยันเช็คอิน</button>
@@ -689,6 +704,10 @@
     <div class="field">
       <label>เลขไมล์ (กม.) — แก้ไขได้</label>
       <input type="number" id="mileage-warehouse" placeholder="0">
+    </div>
+    <div class="field">
+      <label>หมายเหตุ (ไม่บังคับ)</label>
+      <textarea id="note-warehouse" rows="2" placeholder="พิมพ์หมายเหตุ (ถ้ามี)"></textarea>
     </div>
     <div class="btn-row two">
       <button class="btn secondary" onclick="closePanel()">ย้อนกลับ</button>
@@ -716,6 +735,10 @@
       <label>เลขไมล์ (กม.) — แก้ไขได้</label>
       <input type="number" id="mileage-destination" placeholder="0">
     </div>
+    <div class="field">
+      <label>หมายเหตุ (ไม่บังคับ)</label>
+      <textarea id="note-destination" rows="2" placeholder="พิมพ์หมายเหตุ (ถ้ามี)"></textarea>
+    </div>
     <div class="btn-row two">
       <button class="btn secondary" onclick="closePanel()">ย้อนกลับ</button>
       <button class="btn primary" onclick="confirmCheckin('destination')">ยืนยันเช็คอิน</button>
@@ -739,6 +762,10 @@
     <div class="field">
       <label>เลขไมล์ (กม.) — แก้ไขได้</label>
       <input type="number" id="mileage-parking" placeholder="0">
+    </div>
+    <div class="field">
+      <label>หมายเหตุ (ไม่บังคับ)</label>
+      <textarea id="note-parking" rows="2" placeholder="พิมพ์หมายเหตุ (ถ้ามี)"></textarea>
     </div>
     <div class="btn-row two">
       <button class="btn secondary" onclick="closePanel()">ย้อนกลับ</button>
@@ -856,7 +883,7 @@
 <script>
 // ==== ตั้งค่าการเชื่อมต่อ Google Sheet ====
 // วาง URL ของ Google Apps Script Web App ที่ deploy แล้วตรงนี้ (ดูวิธีทำใน README)
-const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbzuN90wCafp5klwE4n0WUpiZ7AvbIjR9KdKhcUaWwhUWRgXVHXPMfNEzGosr2OFivdU/exec';
+const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxPutMAneqVICfqe4YXQ3qb56hVJ8Bv1JDyi50TnELikaSgrkygNr-QH85lnxdewbv4/exec';
 
 // รายชื่อพนักงานสำรอง กรณียังไม่ได้ตั้งค่า SHEET_WEBHOOK_URL หรือดึงจากชีทไม่สำเร็จ
 // (แนะนำให้ดูแลรายชื่อผ่านแท็บ "Drivers" ใน Google Sheet แทนการแก้ตรงนี้)
@@ -1169,6 +1196,10 @@ function sendToSheet(entry){
   }).catch(()=>{ /* offline หรือเน็ตมีปัญหา ข้อมูลยังอยู่ในเครื่อง ไม่หาย */ });
 }
 
+function escHtml(t){
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 function renderHistory(){
   const list = loadHistory().filter(item => item.driverId === currentDriverId);
   const el = document.getElementById('historyList');
@@ -1203,6 +1234,7 @@ function renderHistory(){
     }
     if(item.mileage!==null && item.mileage!==undefined) lines.push('เลขไมล์: '+item.mileage+' กม.');
     if(item.gps) lines.push('GPS: '+item.gps.lat.toFixed(5)+', '+item.gps.lon.toFixed(5));
+    if(item.note) lines.push('📝 หมายเหตุ: '+escHtml(item.note));
     return '<div class="history-item">'+
       '<div class="htop"><span>'+STATUS_ICON[item.status]+' '+STATUS_LABEL[item.status]+'</span><span>'+item.time+'</span></div>'+
       '<div class="hmeta">'+item.driver+' · '+item.head+'/'+item.tail+' · '+item.product+'</div>'+
@@ -1228,6 +1260,8 @@ function confirmCheckin(status){
   let time = new Date().toLocaleString('th-TH', {dateStyle:'short', timeStyle:'short'});
 
   let entry = Object.assign({status, mileage, gps, time}, snap);
+  const noteEl = document.getElementById('note-'+status);
+  if(noteEl && noteEl.value.trim()) entry.note = noteEl.value.trim();
 
   if(status==='depart'){
     const origin = document.getElementById('departOrigin').value;
@@ -1293,6 +1327,8 @@ function confirmCheckin(status){
 }
 
 function resetPanelFields(status){
+  const noteReset = document.getElementById('note-'+status);
+  if(noteReset) noteReset.value='';
   if(status==='depart'){
     document.getElementById('departOrigin').value='';
     document.getElementById('mileage-depart').value='';
